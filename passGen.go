@@ -1,11 +1,13 @@
 /*
-Password generator for AWS RDS master user
+This tool regenerates the original masterusername password for an AWS Relational
+Database Service PostgreSQL Instance originally created by the PCF Service
+Broker. Required ID and salt key.
 
 Command execution:
 passGen -i [identity] -s [salt]
 
 Please see relevant Pivotal KB here:
-
+https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
 
 Copyright 2018 Tyler Ramer
@@ -57,8 +59,8 @@ func generatePassword(salt, id string, maxIdentifierLength float64) string {
 func printHelp() {
 	helpDoc := `
 This tool regenerates the original masterusername password for an AWS Relational
-Database Service PostgreSQL Instance originally created by the PCF Service Broker
-for AWS provided a service instance guid and master salt key.
+Database Service PostgreSQL Instance originally created by the PCF Service
+Broker for AWS provided a service instance guid and master salt key.
 
 Please see Pivotal knowledge base on this tool here:
 https://discuss.pivotal.io/hc/en-us/articles/360001356494
