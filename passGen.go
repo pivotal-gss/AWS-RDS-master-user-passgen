@@ -61,7 +61,7 @@ Database Service PostgreSQL Instance originally created by the PCF Service Broke
 for AWS provided a service instance guid and master salt key.
 
 Please see Pivotal knowledge base on this tool here:
-
+https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
 Usage: passGen -i [identity] -s [salt]
 
