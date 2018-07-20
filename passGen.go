@@ -43,9 +43,6 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/postgres.go
-const maxIdentifierLength = 30
-
 // sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/sql/generators.go
 
 func generatePassword(salt, id string, maxIdentifierLength float64) string {
@@ -82,9 +79,13 @@ Released under MIT license,	copyright 2018 Tyler Ramer
 
 func main() {
 
+	// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/postgres.go
+	var maxIdentifierLength = 30
+
 	helpFlag := flag.Bool("h", false, "help")
 	idFlag := flag.String("i", "", "ID")
 	saltFlag := flag.String("s", "", "Salt")
+	mysqlFlag := flag.Bool("m", false, "mysql")
 	flag.Parse()
 
 	switch {
@@ -98,10 +99,15 @@ func main() {
 		printHelp()
 		os.Exit(1)
 	}
+
 	id := *idFlag
 	salt := *saltFlag
 
-	passwd := generatePassword(salt, id, maxIdentifierLength)
+	if *mysqlFlag {
+		maxIdentifierLength = 41
+	}
+
+	passwd := generatePassword(salt, id, float64(maxIdentifierLength))
 	fmt.Println("Generated password:")
 	fmt.Println(passwd)
 
