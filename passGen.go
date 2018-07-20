@@ -6,6 +6,9 @@ Broker. Required ID and salt key.
 Command execution:
 passGen -i [identity] -s [salt]
 
+	-m
+		Construct a MySQL instance password.
+
 Please see relevant Pivotal KB here:
 https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
@@ -63,6 +66,9 @@ Please see Pivotal knowledge base on this tool here:
 https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
 Usage: passGen -i [identity] -s [salt]
+
+	-m
+		Construct a MySQL instance password.
 
 Standard security recommendations apply to distribution of the generated
 password.
