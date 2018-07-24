@@ -36,85 +36,44 @@ THE SOFTWARE.
 
 package main
 
-import (
-	"encoding/base64"
-	"flag"
-	"fmt"
-	"math"
-	"os"
-
-	"golang.org/x/crypto/sha3"
-)
+import "github.com/Tylarb/AWS-RDS-master-user-passgen/cmd"
 
 // sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/sql/generators.go
 
-func generatePassword(salt, id string, maxIdentifierLength float64) string {
-	bytes := []byte(id + salt)
-	digest := sha3.Sum224(bytes)
-	result := base64.RawURLEncoding.EncodeToString(digest[:])
-	length := int(math.Min(maxIdentifierLength, float64(len(result))))
-	return result[:length]
-}
-
-func printHelp() {
-	helpDoc := `
-This tool regenerates the original masterusername password for an AWS Relational
-Database Service PostgreSQL Instance originally created by the PCF Service
-Broker for AWS provided a service instance guid and master salt key.
-
-Please see Pivotal knowledge base on this tool here:
-https://discuss.pivotal.io/hc/en-us/articles/360001356494
-
-Usage: passGen -i [identity] -s [salt]
-
-	-m
-		Construct a MySQL instance password.
-
-Standard security recommendations apply to distribution of the generated
-password.
-
-This tool is provided as a general service and is not under any official
-supported capacity. There is no implied or guaranteed warranty or statement of
-support.
-
-Released under MIT license,	copyright 2018 Tyler Ramer
-	`
-	fmt.Println(helpDoc)
-
-}
-
 func main() {
 
-	// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/postgres.go
-	var maxIdentifierLength = 30
+	cmd.Execute()
+	/*
+		// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/postgres.go
+		var maxIdentifierLength = 30
 
-	helpFlag := flag.Bool("h", false, "help")
-	idFlag := flag.String("i", "", "ID")
-	saltFlag := flag.String("s", "", "Salt")
-	mysqlFlag := flag.Bool("m", false, "mysql")
-	flag.Parse()
+		helpFlag := flag.Bool("h", false, "help")
+		idFlag := flag.String("i", "", "ID")
+		saltFlag := flag.String("s", "", "Salt")
+		mysqlFlag := flag.Bool("m", false, "mysql")
+		flag.Parse()
 
-	switch {
-	case *helpFlag:
-		printHelp()
-		os.Exit(1)
-	case *idFlag == "":
-		printHelp()
-		os.Exit(1)
-	case *saltFlag == "":
-		printHelp()
-		os.Exit(1)
-	}
+		switch {
+		case *helpFlag:
+			printHelp()
+			os.Exit(1)
+		case *idFlag == "":
+			printHelp()
+			os.Exit(1)
+		case *saltFlag == "":
+			printHelp()
+			os.Exit(1)
+		}
 
-	id := *idFlag
-	salt := *saltFlag
+		id := *idFlag
+		salt := *saltFlag
 
-	if *mysqlFlag {
-		maxIdentifierLength = 41
-	}
+		if *mysqlFlag {
+			maxIdentifierLength = 41
+		}
 
-	passwd := generatePassword(salt, id, float64(maxIdentifierLength))
-	fmt.Println("Generated password:")
-	fmt.Println(passwd)
+		passwd := generatePassword(salt, id, float64(maxIdentifierLength))
+		fmt.Println("Generated password:")
+		fmt.Println(passwd) */
 
 }
