@@ -94,9 +94,6 @@ Released under MIT license,	copyright 2018 Tyler Ramer
 
 func main() {
 
-	// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/postgres.go
-	var maxIdentifierLength = 30
-
 	helpFlag := flag.Bool("h", false, "help")
 	idFlag := flag.String("i", "", "ID")
 	saltFlag := flag.String("s", "", "Salt")
@@ -119,8 +116,7 @@ func main() {
 	salt := *saltFlag
 
 	if *mysqlFlag {
-		maxIdentifierLength = 41
-		displayPassword(generatePassword(salt, id, float64(maxIdentifierLength)))
+		displayPassword(generatePassword(salt, id, float64(mysql)))
 	}
 }
 
