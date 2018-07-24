@@ -116,11 +116,10 @@ func main() {
 	salt := *saltFlag
 
 	if *mysqlFlag {
-		displayPassword(generatePassword(salt, id, float64(mysql)))
+		displayPassword(generatePassword(salt, id, float64(mysql)), "MySQL")
 	}
 }
 
-func displayPassword(passwd string) {
-	fmt.Println("Generated password:")
-	fmt.Println(passwd)
+func displayPassword(passwd, rds string) {
+	fmt.Printf("Generated %v password:\n%v\n", rds, passwd)
 }
