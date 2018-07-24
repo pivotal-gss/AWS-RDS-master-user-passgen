@@ -46,6 +46,15 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
+const (
+	postgres  = 30
+	mysql     = 41
+	sqlServer = 128
+	mariaDB   = 41
+	aurora    = 38
+	oracle    = 30
+)
+
 // sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/sql/generators.go
 
 func generatePassword(salt, id string, maxIdentifierLength float64) string {
