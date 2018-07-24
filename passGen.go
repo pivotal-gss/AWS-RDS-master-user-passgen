@@ -120,10 +120,11 @@ func main() {
 
 	if *mysqlFlag {
 		maxIdentifierLength = 41
+		displayPassword(generatePassword(salt, id, float64(maxIdentifierLength)))
 	}
+}
 
-	passwd := generatePassword(salt, id, float64(maxIdentifierLength))
+func displayPassword(passwd string) {
 	fmt.Println("Generated password:")
 	fmt.Println(passwd)
-
 }
