@@ -101,6 +101,7 @@ func main() {
 	postgresFlag := flag.Bool("p", false, "postgres")
 	mysqlFlag := flag.Bool("m", false, "mysql")
 	sqlServerFlag := flag.Bool("ss", false, "sqlServer")
+	mariaDBFlag := flag.Bool("mm", false, "mariaDB")
 
 	flag.Parse()
 
@@ -126,6 +127,8 @@ func main() {
 		displayPassword(generatePassword(salt, id, float64(mysql)), "MySQL")
 	case *sqlServerFlag:
 		displayPassword(generatePassword(salt, id, float64(sqlServer)), "SQL Server")
+	case *mariaDBFlag:
+		displayPassword(generatePassword(salt, id, float64(mariaDB)), "MariaDB")
 	}
 }
 
