@@ -97,7 +97,10 @@ func main() {
 	helpFlag := flag.Bool("h", false, "help")
 	idFlag := flag.String("i", "", "ID")
 	saltFlag := flag.String("s", "", "Salt")
+
+	postgresFlag := flag.Bool("p", false, "postgres")
 	mysqlFlag := flag.Bool("m", false, "mysql")
+
 	flag.Parse()
 
 	switch {
@@ -115,7 +118,10 @@ func main() {
 	id := *idFlag
 	salt := *saltFlag
 
-	if *mysqlFlag {
+	switch {
+	case *postgresFlag:
+		displayPassword(generatePassword(salt, id, float64(postgres)), "PostgreSQL")
+	case *mysqlFlag:
 		displayPassword(generatePassword(salt, id, float64(mysql)), "MySQL")
 	}
 }
