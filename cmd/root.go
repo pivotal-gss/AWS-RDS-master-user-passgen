@@ -38,28 +38,31 @@ var rootCmd = &cobra.Command{
 	Use:   "passGen [-flags]",
 	Short: "passGen is used to display the original masterusername password for an AWS Relational Database Service",
 	Long: `This tool displays the original masterusername password for an AWS Relational
-	Database Service Instance originally created by the PCF Service
-	Broker for AWS provided a service instance guid and master salt key.
+Database Service Instance originally created by the PCF Service
+Broker for AWS provided a service instance guid and master salt key.
+
+Please see Pivotal knowledge base on this tool here:
+https://discuss.pivotal.io/hc/en-us/articles/360001356494
+
+Usage: passGen -i [--identity] -s [--salt]  --[mysql,postgres]
+
+
+Only one service name can be provided.
+
+Standard security recommendations apply to distribution of the generated
+password.
 	
-	Please see Pivotal knowledge base on this tool here:
-	https://discuss.pivotal.io/hc/en-us/articles/360001356494
+This tool is provided as a general service and is not under any official
+supported capacity. There is no implied or guaranteed warranty or statement of
+support.
 	
-	Usage: passGen -i [identity] -s [salt]  --
-	
-	Standard security recommendations apply to distribution of the generated
-	password.
-	
-	This tool is provided as a general service and is not under any official
-	supported capacity. There is no implied or guaranteed warranty or statement of
-	support.
-	
-	Released under MIT license,	copyright 2018 Tyler Ramer`,
+Released under MIT license,	copyright 2018 Tyler Ramer`,
 	Run: func(cmd *cobra.Command, args []string) {
 		switch {
-		case id == "":
+		case id == "" || salt == "":
 			cmd.Help()
 			os.Exit(1)
-		case salt == "":
+		case !exclusiveOr(mysqlFlag, postgresFlag):
 			cmd.Help()
 			os.Exit(1)
 		}
@@ -90,4 +93,18 @@ func generatePassword(salt, id string, maxIdentifierLength float64) string {
 	result := base64.RawURLEncoding.EncodeToString(digest[:])
 	length := int(math.Min(maxIdentifierLength, float64(len(result))))
 	return result[:length]
+}
+
+func exclusiveOr(rds ...bool) bool {
+	var t bool
+	for _, service := range rds {
+		if service && t {
+			return false
+		}
+		if service {
+			t = true
+		}
+
+	}
+	return t
 }
