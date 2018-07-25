@@ -46,6 +46,15 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
+const (
+	postgres  = 30
+	mysql     = 41
+	sqlServer = 128
+	mariaDB   = 41
+	aurora    = 38
+	oracle    = 30
+)
+
 // sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/sql/generators.go
 
 func generatePassword(salt, id string, maxIdentifierLength float64) string {
@@ -85,13 +94,17 @@ Released under MIT license,	copyright 2018 Tyler Ramer
 
 func main() {
 
-	// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/postgres.go
-	var maxIdentifierLength = 30
-
 	helpFlag := flag.Bool("h", false, "help")
 	idFlag := flag.String("i", "", "ID")
 	saltFlag := flag.String("s", "", "Salt")
+
+	postgresFlag := flag.Bool("p", false, "postgres")
 	mysqlFlag := flag.Bool("m", false, "mysql")
+	sqlServerFlag := flag.Bool("ss", false, "sqlServer")
+	mariaDBFlag := flag.Bool("mm", false, "mariaDB")
+	auroraFlag := flag.Bool("a", false, "auroraDB")
+	oracleFlag := flag.Bool("o", false, "Oracle")
+
 	flag.Parse()
 
 	switch {
@@ -109,12 +122,22 @@ func main() {
 	id := *idFlag
 	salt := *saltFlag
 
-	if *mysqlFlag {
-		maxIdentifierLength = 41
+	switch {
+	case *postgresFlag:
+		displayPassword(generatePassword(salt, id, float64(postgres)), "PostgreSQL")
+	case *mysqlFlag:
+		displayPassword(generatePassword(salt, id, float64(mysql)), "MySQL")
+	case *sqlServerFlag:
+		displayPassword(generatePassword(salt, id, float64(sqlServer)), "SQL Server")
+	case *mariaDBFlag:
+		displayPassword(generatePassword(salt, id, float64(mariaDB)), "MariaDB")
+	case *auroraFlag:
+		displayPassword(generatePassword(salt, id, float64(aurora)), "Aurora")
+	case *oracleFlag:
+		displayPassword(generatePassword(salt, id, float64(oracle)), "Oracle")
 	}
+}
 
-	passwd := generatePassword(salt, id, float64(maxIdentifierLength))
-	fmt.Println("Generated password:")
-	fmt.Println(passwd)
-
+func displayPassword(passwd, rds string) {
+	fmt.Printf("Generated %v password:\n%v\n", rds, passwd)
 }
