@@ -38,25 +38,113 @@ package main
 
 import (
 	"encoding/base64"
-	"flag"
 	"fmt"
 	"math"
 	"os"
 
+	"github.com/spf13/cobra"
 	"golang.org/x/crypto/sha3"
 )
 
-const (
-	postgres  = 30
-	mysql     = 41
-	sqlServer = 128
-	mariaDB   = 41
-	aurora    = 38
-	oracle    = 30
+var (
+	id                  string
+	salt                string
+	maxIdentifierLength int
 )
 
-// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/sql/generators.go
+type rds struct {
+	name       string
+	passLength int
+}
 
+var mysqlFlag, postgresFlag, sqlServerFlag, mariadbFlag, auroraFlag, oracleFlag bool
+
+var (
+	postgres  = rds{"Postgres", 30}
+	mysql     = rds{"MySQL", 41}
+	sqlServer = rds{"SQL-Server", 128}
+	mariaDB   = rds{"MariaDB", 41}
+	aurora    = rds{"Aurora DB", 38}
+	oracle    = rds{"Oracle DB", 30}
+)
+
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&id, "identity", "i", "", "Service instance identity")
+	rootCmd.PersistentFlags().StringVarP(&salt, "salt", "s", "", "Master salt key")
+	rootCmd.PersistentFlags().BoolVar(&mysqlFlag, "mysql", false, "MySQL")
+	rootCmd.PersistentFlags().BoolVar(&postgresFlag, "postgres", false, "Postgres")
+	rootCmd.PersistentFlags().BoolVar(&sqlServerFlag, "sqlServer", false, "SQL Server")
+	rootCmd.PersistentFlags().BoolVar(&mariadbFlag, "mariadb", false, "MariaDB")
+	rootCmd.PersistentFlags().BoolVar(&auroraFlag, "aurora", false, "Aurora MySQL")
+	rootCmd.PersistentFlags().BoolVar(&oracleFlag, "oracle", false, "Oracle DB")
+}
+
+func main() {
+	Execute()
+}
+
+var rootCmd = &cobra.Command{
+	Use:   "passGen [-flags]",
+	Short: "passGen is used to display the original masterusername password for an AWS Relational Database Service",
+	Long: `This tool displays the original masterusername password for an AWS Relational
+Database Service Instance originally created by the PCF Service
+Broker for AWS provided a service instance guid and master salt key.
+
+Please see Pivotal knowledge base on this tool here:
+https://discuss.pivotal.io/hc/en-us/articles/360001356494
+
+Usage: passGen -i [--identity] -s [--salt]  --[service name]
+
+
+Only one service name can be provided.
+
+Standard security recommendations apply to distribution of the generated
+password.
+	
+This tool is provided as a general service and is not under any official
+supported capacity. There is no implied or guaranteed warranty or statement of
+support.
+	
+Released under MIT license,	copyright 2018 Tyler Ramer`,
+	Run: func(cmd *cobra.Command, args []string) {
+		switch {
+		case id == "" || salt == "":
+			cmd.Help()
+			os.Exit(1)
+		case !xOr(mysqlFlag, postgresFlag, sqlServerFlag, mariadbFlag, auroraFlag, oracleFlag):
+			cmd.Help()
+			os.Exit(1)
+		}
+		switch {
+		case mysqlFlag:
+			displayPassword(mysql)
+		case postgresFlag:
+			displayPassword(postgres)
+		case sqlServerFlag:
+			displayPassword(sqlServer)
+		case mariadbFlag:
+			displayPassword(mariaDB)
+		case auroraFlag:
+			displayPassword(aurora)
+		case oracleFlag:
+			displayPassword(oracle)
+		}
+	},
+}
+
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func displayPassword(service rds) {
+	pass := generatePassword(salt, id, float64(service.passLength))
+	fmt.Printf("Generated %v password:\n%v\n", service.name, pass)
+}
+
+// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/sql/generators.go
 func generatePassword(salt, id string, maxIdentifierLength float64) string {
 	bytes := []byte(id + salt)
 	digest := sha3.Sum224(bytes)
@@ -65,79 +153,15 @@ func generatePassword(salt, id string, maxIdentifierLength float64) string {
 	return result[:length]
 }
 
-func printHelp() {
-	helpDoc := `
-This tool regenerates the original masterusername password for an AWS Relational
-Database Service PostgreSQL Instance originally created by the PCF Service
-Broker for AWS provided a service instance guid and master salt key.
-
-Please see Pivotal knowledge base on this tool here:
-https://discuss.pivotal.io/hc/en-us/articles/360001356494
-
-Usage: passGen -i [identity] -s [salt]
-
-	-m
-		Construct a MySQL instance password.
-
-Standard security recommendations apply to distribution of the generated
-password.
-
-This tool is provided as a general service and is not under any official
-supported capacity. There is no implied or guaranteed warranty or statement of
-support.
-
-Released under MIT license,	copyright 2018 Tyler Ramer
-	`
-	fmt.Println(helpDoc)
-
-}
-
-func main() {
-
-	helpFlag := flag.Bool("h", false, "help")
-	idFlag := flag.String("i", "", "ID")
-	saltFlag := flag.String("s", "", "Salt")
-
-	postgresFlag := flag.Bool("p", false, "postgres")
-	mysqlFlag := flag.Bool("m", false, "mysql")
-	sqlServerFlag := flag.Bool("ss", false, "sqlServer")
-	mariaDBFlag := flag.Bool("mm", false, "mariaDB")
-	auroraFlag := flag.Bool("a", false, "auroraDB")
-	oracleFlag := flag.Bool("o", false, "Oracle")
-
-	flag.Parse()
-
-	switch {
-	case *helpFlag:
-		printHelp()
-		os.Exit(1)
-	case *idFlag == "":
-		printHelp()
-		os.Exit(1)
-	case *saltFlag == "":
-		printHelp()
-		os.Exit(1)
+func xOr(flags ...bool) bool {
+	var t bool
+	for _, flag := range flags {
+		if flag && t {
+			return false
+		}
+		if flag {
+			t = true
+		}
 	}
-
-	id := *idFlag
-	salt := *saltFlag
-
-	switch {
-	case *postgresFlag:
-		displayPassword(generatePassword(salt, id, float64(postgres)), "PostgreSQL")
-	case *mysqlFlag:
-		displayPassword(generatePassword(salt, id, float64(mysql)), "MySQL")
-	case *sqlServerFlag:
-		displayPassword(generatePassword(salt, id, float64(sqlServer)), "SQL Server")
-	case *mariaDBFlag:
-		displayPassword(generatePassword(salt, id, float64(mariaDB)), "MariaDB")
-	case *auroraFlag:
-		displayPassword(generatePassword(salt, id, float64(aurora)), "Aurora")
-	case *oracleFlag:
-		displayPassword(generatePassword(salt, id, float64(oracle)), "Oracle")
-	}
-}
-
-func displayPassword(passwd, rds string) {
-	fmt.Printf("Generated %v password:\n%v\n", rds, passwd)
+	return t
 }
