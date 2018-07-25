@@ -6,6 +6,9 @@ Broker. Required ID and salt key.
 Command execution:
 passGen -i [identity] -s [salt]
 
+	-m
+		Construct a MySQL instance password.
+
 Please see relevant Pivotal KB here:
 https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
@@ -43,8 +46,14 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-// sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/postgres.go
-const maxIdentifierLength = 30
+const (
+	postgres  = 30
+	mysql     = 41
+	sqlServer = 128
+	mariaDB   = 41
+	aurora    = 38
+	oracle    = 30
+)
 
 // sourced from github.com/pivotal-cf/aws-services-broker/brokers/rds/internal/sql/generators.go
 
@@ -67,6 +76,9 @@ https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
 Usage: passGen -i [identity] -s [salt]
 
+	-m
+		Construct a MySQL instance password.
+
 Standard security recommendations apply to distribution of the generated
 password.
 
@@ -85,6 +97,14 @@ func main() {
 	helpFlag := flag.Bool("h", false, "help")
 	idFlag := flag.String("i", "", "ID")
 	saltFlag := flag.String("s", "", "Salt")
+
+	postgresFlag := flag.Bool("p", false, "postgres")
+	mysqlFlag := flag.Bool("m", false, "mysql")
+	sqlServerFlag := flag.Bool("ss", false, "sqlServer")
+	mariaDBFlag := flag.Bool("mm", false, "mariaDB")
+	auroraFlag := flag.Bool("a", false, "auroraDB")
+	oracleFlag := flag.Bool("o", false, "Oracle")
+
 	flag.Parse()
 
 	switch {
@@ -98,11 +118,26 @@ func main() {
 		printHelp()
 		os.Exit(1)
 	}
+
 	id := *idFlag
 	salt := *saltFlag
 
-	passwd := generatePassword(salt, id, maxIdentifierLength)
-	fmt.Println("Generated password:")
-	fmt.Println(passwd)
+	switch {
+	case *postgresFlag:
+		displayPassword(generatePassword(salt, id, float64(postgres)), "PostgreSQL")
+	case *mysqlFlag:
+		displayPassword(generatePassword(salt, id, float64(mysql)), "MySQL")
+	case *sqlServerFlag:
+		displayPassword(generatePassword(salt, id, float64(sqlServer)), "SQL Server")
+	case *mariaDBFlag:
+		displayPassword(generatePassword(salt, id, float64(mariaDB)), "MariaDB")
+	case *auroraFlag:
+		displayPassword(generatePassword(salt, id, float64(aurora)), "Aurora")
+	case *oracleFlag:
+		displayPassword(generatePassword(salt, id, float64(oracle)), "Oracle")
+	}
+}
 
+func displayPassword(passwd, rds string) {
+	fmt.Printf("Generated %v password:\n%v\n", rds, passwd)
 }

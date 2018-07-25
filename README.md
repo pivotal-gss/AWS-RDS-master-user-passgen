@@ -9,6 +9,9 @@ https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
 ```
 Usage: passGen -i [identity] -s [salt]
+
+	-m
+		Construct a MySQL instance password.
 ```
 
 Standard security recommendations apply to distribution of the generated
