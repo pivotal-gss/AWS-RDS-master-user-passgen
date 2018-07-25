@@ -102,6 +102,7 @@ func main() {
 	mysqlFlag := flag.Bool("m", false, "mysql")
 	sqlServerFlag := flag.Bool("ss", false, "sqlServer")
 	mariaDBFlag := flag.Bool("mm", false, "mariaDB")
+	auroraFlag := flag.Bool("a", false, "auroraDB")
 
 	flag.Parse()
 
@@ -129,6 +130,8 @@ func main() {
 		displayPassword(generatePassword(salt, id, float64(sqlServer)), "SQL Server")
 	case *mariaDBFlag:
 		displayPassword(generatePassword(salt, id, float64(mariaDB)), "MariaDB")
+	case *auroraFlag:
+		displayPassword(generatePassword(salt, id, float64(aurora)), "Aurora")
 	}
 }
 
