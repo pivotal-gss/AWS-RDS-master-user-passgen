@@ -49,7 +49,7 @@ import (
 var (
 	id                  string
 	salt                string
-	database			string
+	database            string
 	maxIdentifierLength int
 )
 
