@@ -8,7 +8,7 @@ Please see Pivotal knowledge base on this tool here:
 https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
 ```
-Usage: passGen -i [--identity] -s [--salt]  --[service name]
+Usage: passGen -i [--identity] -s [--salt]  -d [--database-type]
 
 
 Only one service name can be provided.
@@ -17,15 +17,14 @@ Usage:
   passGen [-flags] [flags]
 
 Flags:
-      --aurora            Aurora MySQL
+  -d  --database-type     Type of database
   -h, --help              help for passGen
   -i, --identity string   Service instance identity
-      --mariadb           MariaDB
-      --mysql             MySQL
-      --oracle            Oracle DB
-      --postgres          Postgres
   -s, --salt string       Master salt key
-      --sqlServer         SQL Server
+      
+Database Type Valid Values:
+  mysql, postgres, sqlServer, mariadb, aurora, oracle
+
 ```
 
 Standard security recommendations apply to distribution of the generated

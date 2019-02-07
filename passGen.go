@@ -43,6 +43,7 @@ import (
 var (
 	id                  string
 	salt                string
+	database            string
 	maxIdentifierLength int
 )
 
@@ -50,8 +51,6 @@ type rds struct {
 	name       string
 	passLength int
 }
-
-var mysqlFlag, postgresFlag, sqlServerFlag, mariadbFlag, auroraFlag, oracleFlag bool
 
 var (
 	postgres  = rds{"Postgres", 30}
@@ -65,12 +64,7 @@ var (
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&id, "identity", "i", "", "Service instance identity")
 	rootCmd.PersistentFlags().StringVarP(&salt, "salt", "s", "", "Master salt key")
-	rootCmd.PersistentFlags().BoolVar(&mysqlFlag, "mysql", false, "MySQL")
-	rootCmd.PersistentFlags().BoolVar(&postgresFlag, "postgres", false, "Postgres")
-	rootCmd.PersistentFlags().BoolVar(&sqlServerFlag, "sqlServer", false, "SQL Server")
-	rootCmd.PersistentFlags().BoolVar(&mariadbFlag, "mariadb", false, "MariaDB")
-	rootCmd.PersistentFlags().BoolVar(&auroraFlag, "aurora", false, "Aurora MySQL")
-	rootCmd.PersistentFlags().BoolVar(&oracleFlag, "oracle", false, "Oracle DB")
+	rootCmd.PersistentFlags().StringVarP(&database, "database-type", "d", "", "Database Type")
 }
 
 func main() {
@@ -87,8 +81,9 @@ Broker for AWS provided a service instance guid and master salt key.
 Please see Pivotal knowledge base on this tool here:
 https://discuss.pivotal.io/hc/en-us/articles/360001356494
 
-Usage: passGen -i [--identity] -s [--salt]  --[service name]
+Usage: passGen -i [--identity] -s [--salt]  -d [--database-type]
 
+Database Types Available: mysql, postgres, sqlServer, mariadb, aurora, oracle
 
 Only one service name can be provided.
 
@@ -105,22 +100,22 @@ Released under MIT license,	copyright 2018 Tyler Ramer`,
 		case id == "" || salt == "":
 			cmd.Help()
 			os.Exit(1)
-		case !xOr(mysqlFlag, postgresFlag, sqlServerFlag, mariadbFlag, auroraFlag, oracleFlag):
+		case database == "":
 			cmd.Help()
 			os.Exit(1)
 		}
 		switch {
-		case mysqlFlag:
+		case database == "mysql":
 			displayPassword(mysql)
-		case postgresFlag:
+		case database == "postgres":
 			displayPassword(postgres)
-		case sqlServerFlag:
+		case database == "sqlServer":
 			displayPassword(sqlServer)
-		case mariadbFlag:
+		case database == "mariadb":
 			displayPassword(mariaDB)
-		case auroraFlag:
+		case database == "aurora":
 			displayPassword(aurora)
-		case oracleFlag:
+		case database == "oracle":
 			displayPassword(oracle)
 		}
 	},
